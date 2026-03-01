@@ -25,7 +25,7 @@ const products: ProductsType = [
     price: 7680,
     sizes: ["Pequeno", "Médio", "Grande"],
     colors: ["#7B3F00", "#5A2D0C"],
-    images: { "#7B3F00": "/products/1g.png", "#5A2D0C": "/products/1p.png" },
+    images: { "#7B3F00": "/cake.jpg", "#5A2D0C": "/cake.jpg" },
   },
   {
     id: 2,
@@ -36,7 +36,7 @@ const products: ProductsType = [
     price: 1600,
     sizes: ["Unidade", "Dúzia"],
     colors: ["#F3E5AB", "#FFF2CC"],
-    images: { "#F3E5AB": "/products/2g.png", "#FFF2CC": "/products/2gr.png" },
+    images: { "#F3E5AB": "/cake.jpg", "#FFF2CC": "/cake.jpg" },
   },
   {
     id: 3,
@@ -47,7 +47,7 @@ const products: ProductsType = [
     price: 350,
     sizes: ["Pequeno", "Médio", "Grande"],
     colors: ["#3E1F0D", "#5C2A0E"],
-    images: { "#3E1F0D": "/products/3gr.png", "#5C2A0E": "/products/3b.png" },
+    images: { "#3E1F0D": "/cake.jpg", "#5C2A0E": "/cake.jpg" },
   },
   {
     id: 4,
@@ -58,7 +58,7 @@ const products: ProductsType = [
     price: 510,
     sizes: ["Pequeno", "Médio", "Grande"],
     colors: ["#F4D6A0", "#E2B07F"],
-    images: { "#F4D6A0": "/products/4w.png", "#E2B07F": "/products/4p.png" },
+    images: { "#F4D6A0": "/cake.jpg", "#E2B07F": "/cake.jpg" },
   },
   {
     id: 5,
@@ -69,7 +69,7 @@ const products: ProductsType = [
     price: 9600,
     sizes: ["Médio", "Grande"],
     colors: ["#C11B17", "#A1120B"],
-    images: { "#C11B17": "/products/5r.png", "#A1120B": "/products/5o.png" },
+    images: { "#C11B17": "/cake.jpg", "#A1120B": "/cake.jpg" },
   },
   {
     id: 6,
@@ -80,7 +80,7 @@ const products: ProductsType = [
     price: 1150,
     sizes: ["Unidade", "Dúzia"],
     colors: ["#F9E79F", "#D6AEDD"],
-    images: { "#F9E79F": "/products/6g.png", "#D6AEDD": "/products/6w.png" },
+    images: { "#F9E79F": "/cake.jpg", "#D6AEDD": "/cake.jpg" },
   },
   {
     id: 7,
@@ -91,7 +91,7 @@ const products: ProductsType = [
     price: 1920,
     sizes: ["Unidade", "Dúzia"],
     colors: ["#F28DA3", "#E75480"],
-    images: { "#F28DA3": "/products/7g.png", "#E75480": "/products/7p.png" },
+    images: { "#F28DA3": "/cake.jpg", "#E75480": "/cake.jpg" },
   },
   {
     id: 8,
@@ -102,7 +102,7 @@ const products: ProductsType = [
     price: 3840,
     sizes: ["Caixa 6", "Caixa 12"],
     colors: ["#7D3C98", "#1F618D"],
-    images: { "#7D3C98": "/products/8b.png", "#1F618D": "/products/8gr.png" },
+    images: { "#7D3C98": "/cake.jpg", "#1F618D": "/cake.jpg" },
   },
 ];
 

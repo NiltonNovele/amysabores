@@ -12,7 +12,7 @@ const Navbar = () => {
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 
   const menuItems = [
-    { name: "Sobre", href: "/sobre", icon: <Info className="w-4 h-4" /> },
+    { name: "Sobre", href: "/about", icon: <Info className="w-4 h-4" /> },
     { name: "Loja", href: "/products", icon: <Gift className="w-4 h-4" /> },
     { name: "Contacto", href: "/contact", icon: <Mail className="w-4 h-4" /> },
   ];

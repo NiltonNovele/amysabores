@@ -40,7 +40,7 @@ const ShippingForm = ({
           className="border-b border-pink-200 py-2 outline-none text-sm placeholder-pink-300 focus:border-pink-500 focus:ring-0 transition"
           type="text"
           id="name"
-          placeholder="Amila van Animal"
+          placeholder="Amila vanimal"
           {...register("name")}
         />
         {errors.name && (
