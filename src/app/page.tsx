@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+// Slides da homepage
 type FeaturedSlide = {
   id: number;
   image: string;
@@ -49,10 +50,24 @@ interface HomepageProps {
   category?: string;
 }
 
+// Componente principal
 const Homepage = ({ category }: HomepageProps) => {
+  return (
+    <div className="space-y-12">
+      <HomepageContent category={category} />
+    </div>
+  );
+};
+
+export default Homepage;
+
+// ------------------------
+// Client Component para conteúdo interativo
+// ------------------------
+const HomepageContent = ({ category }: HomepageProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Auto slide every 5s
+  // Auto slide a cada 5 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % featuredSlides.length);
@@ -71,82 +86,78 @@ const Homepage = ({ category }: HomepageProps) => {
   };
 
   return (
-    <div className="space-y-12">
+    <>
       {/* SLIDESHOW */}
       <div className="bg-white relative w-full aspect-video md:aspect-3/1 overflow-hidden rounded-2xl shadow-lg">
-  {featuredSlides.map((slide, index) => (
-    <div
-      key={slide.id}
-      className={`absolute inset-0 transition-opacity duration-700 ${
-        index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
-      }`}
-    >
-      <Image
-        src={slide.image}
-        alt={slide.title}
-        fill
-        priority={index === 0}
-        className="object-cover"
-      />
+        {featuredSlides.map((slide, index) => (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-700 ${
+              index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
+          >
+            <Image
+              src={slide.image}
+              alt={slide.title}
+              fill
+              priority={index === 0}
+              className="object-cover"
+            />
 
-      {/* Stronger Gradient Overlay (better for mobile text visibility) */}
-      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/40 to-transparent" />
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/40 to-transparent" />
 
-      {/* Content */}
-      <div className="absolute inset-0 flex flex-col justify-end md:justify-center items-center md:items-start text-center md:text-left px-5 md:px-12 pb-8 md:pb-0 text-white space-y-3 md:space-y-4">
-        <h2 className="text-xl sm:text-2xl md:text-4xl font-bold leading-tight max-w-lg">
-          {slide.title}
-        </h2>
+            {/* Conteúdo */}
+            <div className="absolute inset-0 flex flex-col justify-end md:justify-center items-center md:items-start text-center md:text-left px-5 md:px-12 pb-8 md:pb-0 text-white space-y-3 md:space-y-4">
+              <h2 className="text-xl sm:text-2xl md:text-4xl font-bold leading-tight max-w-lg">
+                {slide.title}
+              </h2>
 
-        <p className="text-xs sm:text-sm md:text-base max-w-md opacity-90">
-          {slide.description}
-        </p>
+              <p className="text-xs sm:text-sm md:text-base max-w-md opacity-90">
+                {slide.description}
+              </p>
 
-        <Link
-          href={slide.ctaLink}
-          className="mt-2 md:mt-0 bg-pink-600 hover:bg-pink-700 active:scale-95 transition-all duration-200 px-5 py-2.5 rounded-lg text-sm md:text-base font-semibold shadow-md"
+              <Link
+                href={slide.ctaLink}
+                className="mt-2 md:mt-0 bg-pink-600 hover:bg-pink-700 active:scale-95 transition-all duration-200 px-5 py-2.5 rounded-lg text-sm md:text-base font-semibold shadow-md"
+              >
+                {slide.ctaLabel}
+              </Link>
+            </div>
+          </div>
+        ))}
+
+        {/* Navegação */}
+        <button
+          onClick={handlePrev}
+          className="absolute top-1/2 left-2 md:left-4 -translate-y-1/2 bg-white/70 hover:bg-white/90 active:scale-95 rounded-full p-3 md:p-2 shadow-md transition"
         >
-          {slide.ctaLabel}
-        </Link>
+          <ChevronLeft className="w-5 h-5 text-gray-800" />
+        </button>
+
+        <button
+          onClick={handleNext}
+          className="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 bg-white/70 hover:bg-white/90 active:scale-95 rounded-full p-3 md:p-2 shadow-md transition"
+        >
+          <ChevronRight className="w-5 h-5 text-gray-800" />
+        </button>
+
+        {/* Dots */}
+        <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          {featuredSlides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full transition-all ${
+                idx === currentSlide ? "bg-pink-600 scale-110" : "bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
       </div>
-    </div>
-  ))}
-
-  {/* Navigation Arrows (larger tap area for mobile) */}
-  <button
-    onClick={handlePrev}
-    className="absolute top-1/2 left-2 md:left-4 -translate-y-1/2 bg-white/70 hover:bg-white/90 active:scale-95 rounded-full p-3 md:p-2 shadow-md transition"
-  >
-    <ChevronLeft className="w-5 h-5 text-gray-800" />
-  </button>
-
-  <button
-    onClick={handleNext}
-    className="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 bg-white/70 hover:bg-white/90 active:scale-95 rounded-full p-3 md:p-2 shadow-md transition"
-  >
-    <ChevronRight className="w-5 h-5 text-gray-800" />
-  </button>
-
-  {/* Dots */}
-  <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-    {featuredSlides.map((_, idx) => (
-      <button
-        key={idx}
-        onClick={() => setCurrentSlide(idx)}
-        className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full transition-all ${
-          idx === currentSlide
-            ? "bg-pink-600 scale-110"
-            : "bg-white/50"
-        }`}
-      />
-    ))}
-  </div>
-</div>
 
       {/* PRODUCT LIST */}
       <ProductList category={category || ""} params="homepage" />
-    </div>
+    </>
   );
 };
-
-export default Homepage;
