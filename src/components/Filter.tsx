@@ -1,19 +1,15 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 const Filter = () => {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const selectedSort = searchParams.get("sort") || "recentes";
+  const [selectedSort, setSelectedSort] = useState("recentes");
 
   const handleFilter = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("sort", value);
-
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    setSelectedSort(value);
+    // Here you could trigger any callback or state update to filter products
+    // e.g., call a parent function via props if needed
+    console.log("Selected sort:", value);
   };
 
   return (

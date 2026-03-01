@@ -3,7 +3,6 @@
 import useCartStore from "@/stores/cartStore";
 import { ProductType } from "@/types";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -16,33 +15,29 @@ const ProductInteraction = ({
   selectedSize: string;
   selectedFlavor: string;
 }) => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [quantity, setQuantity] = useState(1);
+
+  const [currentSize, setCurrentSize] = useState(selectedSize);
+  const [currentFlavor, setCurrentFlavor] = useState(selectedFlavor);
 
   const { addToCart } = useCartStore();
 
-  const handleOptionChange = (type: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(type, value);
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  const handleOptionChange = (type: "size" | "flavor", value: string) => {
+    if (type === "size") setCurrentSize(value);
+    else setCurrentFlavor(value);
   };
 
   const handleQuantityChange = (type: "increment" | "decrement") => {
-    if (type === "increment") {
-      setQuantity((prev) => prev + 1);
-    } else {
-      if (quantity > 1) setQuantity((prev) => prev - 1);
-    }
+    if (type === "increment") setQuantity((prev) => prev + 1);
+    else if (quantity > 1) setQuantity((prev) => prev - 1);
   };
 
   const handleAddToCart = () => {
     addToCart({
       ...product,
       quantity,
-      selectedSize,
-      selectedFlavor,
+      selectedSize: currentSize,
+      selectedFlavor: currentFlavor,
     });
     toast.success("Produto adicionado ao carrinho 🍰");
   };
@@ -59,7 +54,7 @@ const ProductInteraction = ({
               key={size}
               onClick={() => handleOptionChange("size", size)}
               className={`w-10 h-10 flex items-center justify-center rounded-md border transition font-medium
-                ${selectedSize === size
+                ${currentSize === size
                   ? "bg-pink-600 text-white border-pink-600"
                   : "bg-white text-pink-600 border-pink-200 hover:bg-pink-50"}`}
             >
@@ -78,7 +73,7 @@ const ProductInteraction = ({
               key={flavor}
               onClick={() => handleOptionChange("flavor", flavor)}
               className={`w-8 h-8 rounded-full border-2 transition 
-                ${selectedFlavor === flavor ? "border-pink-600" : "border-pink-200"}`}
+                ${currentFlavor === flavor ? "border-pink-600" : "border-pink-200"}`}
               style={{ backgroundColor: flavor }}
             />
           ))}

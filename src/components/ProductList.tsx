@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ProductsType } from "@/types";
 import ProductCard from "./ProductCard";
 import Link from "next/link";
@@ -12,7 +13,6 @@ import {
   Sandwich,
   ShoppingBasket,
 } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 // TEMPORARY products for Amila Sabores & Cakes in MZN
 const products: ProductsType = [
@@ -113,19 +113,7 @@ const ProductList = ({
   category: string;
   params: "homepage" | "products";
 }) => {
-  // Hardcoded categories UI directly inside ProductList
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const selectedCategory = searchParams.get("category") || "all";
-
-  const handleChange = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value === "all") params.delete("category");
-    else params.set("category", value);
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  };
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const categories = [
     { name: "Todos", icon: <ShoppingBasket className="w-4 h-4" />, slug: "all" },
@@ -136,6 +124,12 @@ const ProductList = ({
     { name: "Salgados", icon: <Sandwich className="w-4 h-4" />, slug: "salgados" },
     { name: "Doces Especiais", icon: <Candy className="w-4 h-4" />, slug: "doces-especiais" },
   ];
+
+  const handleChange = (slug: string) => {
+    setSelectedCategory(slug);
+    console.log("Selected category:", slug);
+    // If you want to filter products dynamically, implement here
+  };
 
   return (
     <div className="w-full">
@@ -161,11 +155,13 @@ const ProductList = ({
       </div>
 
       {params === "products" && <Filter />}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-12">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
+
       <Link
         href={category ? `/products/?category=${category}` : "/products"}
         className="flex justify-end mt-4 underline text-sm text-gray-500"
