@@ -1,13 +1,7 @@
 "use client";
 
-import ClientHomepage from "@/components/ClientHomepage";
+import ProductList from "@/components/ProductList";
 
-interface HomepageProps {
-  category?: string;
+export default function HomePage() {
+  return <ProductList category="" params="homepage" />;
 }
-
-const Homepage = ({ category }: HomepageProps) => {
-  return <ClientHomepage category={category} />;
-};
-
-export default Homepage;
