@@ -1,65 +1,152 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import ProductList from "@/components/ProductList";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+type FeaturedSlide = {
+  id: number;
+  image: string;
+  title: string;
+  description: string;
+  ctaLink: string;
+  ctaLabel: string;
+};
+
+const featuredSlides: FeaturedSlide[] = [
+  {
+    id: 1,
+    image: "/banner1.webp",
+    title: "Bolos Artesanais",
+    description:
+      "Deliciosos bolos feitos com ingredientes frescos e muito amor.",
+    ctaLink: "/produtos/?category=bolos",
+    ctaLabel: "Comprar Agora",
+  },
+  {
+    id: 2,
+    image: "/banner20.jpg",
+    title: "Cupcakes Criativos",
+    description:
+      "Sabores únicos e cores vibrantes para qualquer ocasião especial.",
+    ctaLink: "/produtos/?category=cupcakes",
+    ctaLabel: "Ver Mais",
+  },
+  {
+    id: 3,
+    image: "/banner3.webp",
+    title: "Brigadeiros Gourmet",
+    description:
+      "Pequenas delícias que tornam cada momento inesquecível.",
+    ctaLink: "/produtos/?category=brigadeiros",
+    ctaLabel: "Comprar Agora",
+  },
+];
+
+interface HomepageProps {
+  category?: string;
+}
+
+const Homepage = ({ category }: HomepageProps) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto slide every 5s
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % featuredSlides.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handlePrev = () => {
+    setCurrentSlide(
+      currentSlide === 0 ? featuredSlides.length - 1 : currentSlide - 1
+    );
+  };
+
+  const handleNext = () => {
+    setCurrentSlide((currentSlide + 1) % featuredSlides.length);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="space-y-12">
+      {/* SLIDESHOW */}
+      <div className="bg-white relative w-full aspect-[16/9] md:aspect-[3/1] overflow-hidden rounded-2xl shadow-lg">
+  {featuredSlides.map((slide, index) => (
+    <div
+      key={slide.id}
+      className={`absolute inset-0 transition-opacity duration-700 ${
+        index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+      }`}
+    >
+      <Image
+        src={slide.image}
+        alt={slide.title}
+        fill
+        priority={index === 0}
+        className="object-cover"
+      />
+
+      {/* Stronger Gradient Overlay (better for mobile text visibility) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+
+      {/* Content */}
+      <div className="absolute inset-0 flex flex-col justify-end md:justify-center items-center md:items-start text-center md:text-left px-5 md:px-12 pb-8 md:pb-0 text-white space-y-3 md:space-y-4">
+        <h2 className="text-xl sm:text-2xl md:text-4xl font-bold leading-tight max-w-lg">
+          {slide.title}
+        </h2>
+
+        <p className="text-xs sm:text-sm md:text-base max-w-md opacity-90">
+          {slide.description}
+        </p>
+
+        <Link
+          href={slide.ctaLink}
+          className="mt-2 md:mt-0 bg-pink-600 hover:bg-pink-700 active:scale-95 transition-all duration-200 px-5 py-2.5 rounded-lg text-sm md:text-base font-semibold shadow-md"
+        >
+          {slide.ctaLabel}
+        </Link>
+      </div>
+    </div>
+  ))}
+
+  {/* Navigation Arrows (larger tap area for mobile) */}
+  <button
+    onClick={handlePrev}
+    className="absolute top-1/2 left-2 md:left-4 -translate-y-1/2 bg-white/70 hover:bg-white/90 active:scale-95 rounded-full p-3 md:p-2 shadow-md transition"
+  >
+    <ChevronLeft className="w-5 h-5 text-gray-800" />
+  </button>
+
+  <button
+    onClick={handleNext}
+    className="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 bg-white/70 hover:bg-white/90 active:scale-95 rounded-full p-3 md:p-2 shadow-md transition"
+  >
+    <ChevronRight className="w-5 h-5 text-gray-800" />
+  </button>
+
+  {/* Dots */}
+  <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+    {featuredSlides.map((_, idx) => (
+      <button
+        key={idx}
+        onClick={() => setCurrentSlide(idx)}
+        className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full transition-all ${
+          idx === currentSlide
+            ? "bg-pink-600 scale-110"
+            : "bg-white/50"
+        }`}
+      />
+    ))}
+  </div>
+</div>
+
+      {/* PRODUCT LIST */}
+      <ProductList category={category || ""} params="homepage" />
     </div>
   );
-}
+};
+
+export default Homepage;
