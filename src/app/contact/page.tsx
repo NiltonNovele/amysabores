@@ -118,7 +118,7 @@ const ContactPage = () => {
 
               <button
                 type="submit"
-                className="mt-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 shadow-md"
+                className="mt-2 bg-linear-to-r from-pink-500 to-rose-500 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 shadow-md"
               >
                 Enviar Pedido
                 <ArrowRight className="w-4 h-4" />

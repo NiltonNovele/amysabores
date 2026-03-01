@@ -73,7 +73,7 @@ const Homepage = ({ category }: HomepageProps) => {
   return (
     <div className="space-y-12">
       {/* SLIDESHOW */}
-      <div className="bg-white relative w-full aspect-[16/9] md:aspect-[3/1] overflow-hidden rounded-2xl shadow-lg">
+      <div className="bg-white relative w-full aspect-video md:aspect-3/1 overflow-hidden rounded-2xl shadow-lg">
   {featuredSlides.map((slide, index) => (
     <div
       key={slide.id}
@@ -90,7 +90,7 @@ const Homepage = ({ category }: HomepageProps) => {
       />
 
       {/* Stronger Gradient Overlay (better for mobile text visibility) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/40 to-transparent" />
 
       {/* Content */}
       <div className="absolute inset-0 flex flex-col justify-end md:justify-center items-center md:items-start text-center md:text-left px-5 md:px-12 pb-8 md:pb-0 text-white space-y-3 md:space-y-4">

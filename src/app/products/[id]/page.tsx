@@ -48,7 +48,7 @@ const ProductPage = async ({
   return (
     <div className="flex flex-col gap-4 lg:flex-row md:gap-12 mt-12">
       {/* IMAGEM */}
-      <div className="w-full lg:w-5/12 relative aspect-[2/3]">
+      <div className="w-full lg:w-5/12 relative aspect-2/3">
         <Image
           src={product.images[selectedColor]}
           alt={product.name}

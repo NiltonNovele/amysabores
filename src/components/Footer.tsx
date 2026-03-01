@@ -15,7 +15,7 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="mt-16 bg-gradient-to-br from-pink-50 to-white text-gray-700 rounded-3xl px-5 sm:px-6 md:px-12 py-10 md:py-14 shadow-sm">
+    <footer className="mt-16 bg-linear-to-br from-pink-50 to-white text-gray-700 rounded-3xl px-5 sm:px-6 md:px-12 py-10 md:py-14 shadow-sm">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
 
         {/* BRAND */}
