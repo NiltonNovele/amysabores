@@ -1,7 +1,7 @@
 "use client";
 
 import { PaymentFormInputs, paymentFormSchema } from "@/types";
-import { zodResolver } from "@/hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
