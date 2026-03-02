@@ -61,22 +61,23 @@ const ProductCard = ({ product }: { product: ProductType }) => {
         {/* PRODUCT OPTIONS */}
         <div className="flex items-center gap-4 text-xs">
           {/* SIZE */}
-          <div className="flex flex-col gap-1 flex-1">
-            <span className="text-gray-500">Peso / Porção</span>
-            <select
-              name="size"
-              className="ring ring-pink-200 rounded-md px-2 py-1 text-sm"
-              onChange={(e) =>
-                handleProductOption({ type: "size", value: e.target.value })
-              }
-            >
-              {product.sizes.map((size) => (
-                <option key={size} value={size}>
-                  {size.toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </div>
+          <div className="flex flex-col gap-1 flex-1 min-w-[180px]">
+  <span className="text-gray-500">Peso / Porção</span>
+
+  <select
+    name="size"
+    className="w-full min-w-[180px] ring ring-pink-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all"
+    onChange={(e) =>
+      handleProductOption({ type: "size", value: e.target.value })
+    }
+  >
+    {product.sizes.map((size) => (
+      <option key={size} value={size}>
+        {size.toUpperCase()}
+      </option>
+    ))}
+  </select>
+</div>
 
           {/* FLAVOR */}
           <div className="flex flex-col gap-1 flex-1">

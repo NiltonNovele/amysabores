@@ -1,14 +1,30 @@
 import ProductList from "@/components/ProductList";
 
-const ProductsPage = async ({
-  searchParams,
-}: {
-  searchParams: Promise<{ category: string }>;
-}) => {
-  const category = (await searchParams).category;
+type Props = {
+  searchParams: Promise<{ category?: string }>;
+};
+
+const ProductsPage = async ({ searchParams }: Props) => {
+  const resolvedSearchParams = await searchParams;
+
+  const validCategories = [
+    "bolos",
+    "cupcakes",
+    "biscoitos",
+    "brigadeiros",
+    "salgados",
+    "doces-especiais",
+  ];
+
+  const category =
+    resolvedSearchParams.category &&
+    validCategories.includes(resolvedSearchParams.category)
+      ? resolvedSearchParams.category
+      : "all";
+
   return (
-    <div className="">
-      <ProductList category={category} params="products"/>
+    <div className="mt-8">
+      <ProductList category={category} params="products" />
     </div>
   );
 };
