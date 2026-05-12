@@ -2,7 +2,7 @@
 
 import useCartStore from "@/stores/cartStore";
 import { ProductType } from "@/types";
-import { ShoppingCart } from "lucide-react";
+import { Check, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -36,88 +36,124 @@ const ProductCard = ({ product }: { product: ProductType }) => {
       selectedSize: productOptions.size,
       selectedFlavor: productOptions.flavor,
     });
+
     toast.success("Adicionado ao carrinho 🍰");
   };
 
   return (
-    <div className="shadow-lg rounded-xl overflow-hidden bg-white">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-pink-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       {/* IMAGE */}
-      <Link href={`/products/${product.id}`}>
-        <div className="relative aspect-[2/3]">
+      <Link href={`/products/${product.id}`} className="block">
+        <div className="relative aspect-[4/5] overflow-hidden bg-pink-50">
           <Image
             src={product.images[productOptions.flavor]}
             alt={product.name}
             fill
-            className="object-cover hover:scale-105 transition-all duration-300"
+            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
+
+          <div className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-pink-600 shadow-sm backdrop-blur">
+            MZN {product.price.toFixed(2)}
+          </div>
         </div>
       </Link>
 
       {/* PRODUCT DETAIL */}
-      <div className="flex flex-col gap-4 p-4">
-        <h1 className="font-semibold text-gray-800">{product.name}</h1>
-        <p className="text-sm text-gray-500">{product.shortDescription}</p>
+      <div className="flex flex-1 flex-col gap-4 p-4 sm:p-5">
+        <div className="flex-1">
+          <Link href={`/products/${product.id}`}>
+            <h3 className="line-clamp-1 text-base font-bold text-gray-900 transition hover:text-pink-600">
+              {product.name}
+            </h3>
+          </Link>
+
+          <p className="mt-2 line-clamp-2 text-sm leading-6 text-gray-500">
+            {product.shortDescription}
+          </p>
+        </div>
 
         {/* PRODUCT OPTIONS */}
-        <div className="flex items-center gap-4 text-xs">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* SIZE */}
-          <div className="flex flex-col gap-1 flex-1 min-w-[180px]">
-  <span className="text-gray-500">Peso / Porção</span>
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor={`size-${product.id}`}
+              className="text-xs font-semibold text-pink-700"
+            >
+              Peso / Porção
+            </label>
 
-  <select
-    name="size"
-    className="w-full min-w-[180px] ring ring-pink-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all"
-    onChange={(e) =>
-      handleProductOption({ type: "size", value: e.target.value })
-    }
-  >
-    {product.sizes.map((size) => (
-      <option key={size} value={size}>
-        {size.toUpperCase()}
-      </option>
-    ))}
-  </select>
-</div>
+            <select
+              id={`size-${product.id}`}
+              name="size"
+              value={productOptions.size}
+              className="w-full rounded-xl border border-pink-100 bg-pink-50/50 px-3 py-2.5 text-sm font-medium text-gray-700 outline-none transition-all focus:border-pink-400 focus:bg-white focus:ring-4 focus:ring-pink-100"
+              onChange={(e) =>
+                handleProductOption({ type: "size", value: e.target.value })
+              }
+            >
+              {product.sizes.map((size) => (
+                <option key={size} value={size}>
+                  {size.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* FLAVOR */}
-          <div className="flex flex-col gap-1 flex-1">
-            <span className="text-gray-500">Sabor</span>
-            <div className="flex items-center gap-2">
-              {product.colors.map((flavor) => (
-                <div
-                  key={flavor}
-                  className={`cursor-pointer border rounded-full p-[1.5px] ${
-                    productOptions.flavor === flavor
-                      ? "border-pink-500"
-                      : "border-pink-200"
-                  }`}
-                  onClick={() =>
-                    handleProductOption({ type: "flavor", value: flavor })
-                  }
-                >
-                  <div
-                    className="w-4 h-4 rounded-full"
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-semibold text-pink-700">Sabor</span>
+
+            <div className="flex min-h-[42px] flex-wrap items-center gap-2">
+              {product.colors.map((flavor) => {
+                const isActive = productOptions.flavor === flavor;
+
+                return (
+                  <button
+                    key={flavor}
+                    type="button"
+                    aria-label={`Selecionar sabor ${flavor}`}
+                    onClick={() =>
+                      handleProductOption({ type: "flavor", value: flavor })
+                    }
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-300 ${
+                      isActive
+                        ? "scale-110 border-pink-600 shadow-md shadow-pink-100"
+                        : "border-pink-100 hover:scale-105 hover:border-pink-300"
+                    }`}
                     style={{ backgroundColor: flavor }}
-                  />
-                </div>
-              ))}
+                  >
+                    {isActive && (
+                      <Check className="h-3.5 w-3.5 text-white drop-shadow" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
         {/* PRICE AND ADD TO CART BUTTON */}
-        <div className="flex items-center justify-between mt-2">
-          <p className="font-medium text-gray-800">MZN {product.price.toFixed(2)}</p>
+        <div className="mt-auto flex flex-col gap-3 border-t border-pink-50 pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <span className="text-xs text-gray-400">Preço</span>
+            <p className="text-lg font-bold text-gray-900">
+              MZN {product.price.toFixed(2)}
+            </p>
+          </div>
+
           <button
+            type="button"
             onClick={handleAddToCart}
-            className="ring-1 ring-pink-200 shadow-md rounded-md px-3 py-1 text-sm cursor-pointer hover:text-white hover:bg-pink-600 transition-all duration-300 flex items-center gap-2"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-pink-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-pink-200 transition-all duration-300 hover:-translate-y-0.5 hover:bg-pink-700 hover:shadow-lg sm:w-auto"
           >
-            <ShoppingCart className="w-4 h-4" />
-            Adicionar ao carrinho
+            <ShoppingCart className="h-4 w-4" />
+            Adicionar
           </button>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 

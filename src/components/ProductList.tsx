@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import type { ProductsType } from "@/types";
+import { useMemo, useState } from "react";
 import ProductCard from "./ProductCard";
 import Link from "next/link";
 import Filter from "./Filter";
@@ -14,7 +13,18 @@ import {
   IceCreamBowl,
   Sandwich,
   ShoppingBasket,
+  Search,
 } from "lucide-react";
+
+const categories = [
+  { name: "Todos", icon: ShoppingBasket, slug: "all" },
+  { name: "Bolos", icon: Cake, slug: "bolos" },
+  { name: "Cupcakes", icon: IceCreamBowl, slug: "cupcakes" },
+  { name: "Biscoitos", icon: Cookie, slug: "biscoitos" },
+  { name: "Brigadeiros", icon: Candy, slug: "brigadeiros" },
+  { name: "Salgados", icon: Sandwich, slug: "salgados" },
+  { name: "Doces Especiais", icon: Candy, slug: "doces-especiais" },
+];
 
 const ProductList = ({
   category,
@@ -23,64 +33,141 @@ const ProductList = ({
   category: string;
   params: "homepage" | "products";
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    category || "all"
+  );
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const categories = [
-    { name: "Todos", icon: <ShoppingBasket className="w-4 h-4" />, slug: "all" },
-    { name: "Bolos", icon: <Cake className="w-4 h-4" />, slug: "bolos" },
-    { name: "Cupcakes", icon: <IceCreamBowl className="w-4 h-4" />, slug: "cupcakes" },
-    { name: "Biscoitos", icon: <Cookie className="w-4 h-4" />, slug: "biscoitos" },
-    { name: "Brigadeiros", icon: <Candy className="w-4 h-4" />, slug: "brigadeiros" },
-    { name: "Salgados", icon: <Sandwich className="w-4 h-4" />, slug: "salgados" },
-    { name: "Doces Especiais", icon: <Candy className="w-4 h-4" />, slug: "doces-especiais" },
-  ];
+  const filteredProducts = useMemo(() => {
+    return productsData.filter((product) => {
+      const matchesCategory =
+        selectedCategory === "all" || product.category === selectedCategory;
 
-  const handleChange = (slug: string) => setSelectedCategory(slug);
+      const matchesSearch =
+        searchTerm.trim() === "" ||
+        product.name.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const filteredProducts =
-    selectedCategory === "all"
-      ? productsData
-      : productsData.filter((p) => p.category === selectedCategory);
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchTerm]);
 
   return (
-    <div className="w-full">
-      {/* Categories */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2 bg-pink-50 p-3 rounded-xl mb-6 text-sm shadow-sm">
-        {categories.map((cat) => {
-          const isActive = cat.slug === selectedCategory;
-          return (
-            <div
-              key={cat.slug}
-              onClick={() => handleChange(cat.slug)}
-              className={`flex items-center justify-center gap-2 cursor-pointer px-3 py-2 rounded-lg transition-all duration-200 select-none ${
-                isActive
-                  ? "bg-white shadow-md text-pink-600 font-semibold"
-                  : "text-gray-500 hover:bg-white hover:text-pink-600"
-              }`}
-            >
-              {cat.icon}
-              {cat.name}
-            </div>
-          );
-        })}
+    <section className="w-full">
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-pink-500">
+            Produtos
+          </span>
+
+          <h2 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl">
+            Escolha os seus favoritos
+          </h2>
+
+          <p className="mt-2 max-w-xl text-sm leading-6 text-gray-500">
+            Explore bolos, cupcakes, biscoitos, brigadeiros, salgados e doces
+            especiais preparados com carinho.
+          </p>
+        </div>
+
+        {/* Search */}
+        <div className="relative w-full md:max-w-xs">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-pink-400" />
+
+          <input
+            type="text"
+            placeholder="Pesquisar produto..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded-xl border border-pink-100 bg-white px-4 py-3 pl-10 text-sm text-gray-700 outline-none transition-all duration-300 placeholder:text-pink-300 focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
+          />
+        </div>
       </div>
 
-      {params === "products" && <Filter />}
+      {/* Categories */}
+      <div className="mb-6 overflow-x-auto rounded-2xl bg-pink-50 p-2 shadow-sm">
+        <div className="flex min-w-max gap-2 lg:grid lg:min-w-0 lg:grid-cols-7">
+          {categories.map((cat) => {
+            const Icon = cat.icon;
+            const isActive = cat.slug === selectedCategory;
+
+            return (
+              <button
+                key={cat.slug}
+                type="button"
+                onClick={() => setSelectedCategory(cat.slug)}
+                className={`flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 ${
+                  isActive
+                    ? "bg-white text-pink-600 shadow-md"
+                    : "text-gray-500 hover:bg-white hover:text-pink-600"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {cat.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {params === "products" && (
+        <div className="mb-6">
+          <Filter />
+        </div>
+      )}
+
+      {/* Results Count */}
+      <div className="mb-5 flex items-center justify-between">
+        <p className="text-sm text-gray-500">
+          {filteredProducts.length} produto
+          {filteredProducts.length !== 1 ? "s" : ""} encontrado
+          {filteredProducts.length !== 1 ? "s" : ""}
+        </p>
+      </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-12">
-        {filteredProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {filteredProducts.length > 0 ? (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8 xl:grid-cols-3 2xl:grid-cols-4">
+          {filteredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-pink-200 bg-pink-50/60 px-6 py-12 text-center">
+          <ShoppingBasket className="mb-4 h-10 w-10 text-pink-400" />
 
-      <Link
-        href={category ? `/products/?category=${category}` : "/products"}
-        className="flex justify-end mt-4 underline text-sm text-gray-500"
-      >
-        Ver todos produtos
-      </Link>
-    </div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Nenhum produto encontrado
+          </h3>
+
+          <p className="mt-2 max-w-md text-sm leading-6 text-gray-500">
+            Tente pesquisar por outro nome ou escolha uma categoria diferente.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedCategory("all");
+              setSearchTerm("");
+            }}
+            className="mt-5 rounded-xl bg-pink-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-pink-600"
+          >
+            Limpar filtros
+          </button>
+        </div>
+      )}
+
+      {params === "homepage" && (
+        <div className="mt-8 flex justify-center md:justify-end">
+          <Link
+            href={category ? `/products/?category=${category}` : "/products"}
+            className="inline-flex items-center justify-center rounded-xl border border-pink-200 bg-white px-5 py-3 text-sm font-semibold text-pink-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-pink-400 hover:bg-pink-50"
+          >
+            Ver todos produtos
+          </Link>
+        </div>
+      )}
+    </section>
   );
 };
 
