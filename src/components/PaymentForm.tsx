@@ -1,6 +1,7 @@
 "use client";
 
 import useCartStore from "@/stores/cartStore";
+import { ShippingFormInputs } from "@/types";
 import {
   Check,
   CreditCard,
@@ -10,7 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const API_URL = "https://ejem-donations.onrender.com";
@@ -24,30 +25,35 @@ type ReceiptData = {
   paymentRequestId?: string;
   paymentStatus: string;
   paymentMethod: PaymentMethod;
-  amount: number;
+  subtotal: number;
+  discount: number;
+  shipping: number;
+  total: number;
   createdAt: string;
-  customerName: string;
-  customerContact: string;
+  shippingForm?: ShippingFormInputs;
   deliveryMethod: string;
   message: string;
   items: any[];
 };
 
-const PaymentForm = () => {
+const PaymentForm = ({
+  shippingForm,
+  subtotal,
+  discount,
+  shipping,
+  total,
+}: {
+  shippingForm?: ShippingFormInputs;
+  subtotal: number;
+  discount: number;
+  shipping: number;
+  total: number;
+}) => {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>("M-Pesa");
   const [isLoading, setIsLoading] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
 
   const { cart } = useCartStore() as any;
-
-  const totalAmount = useMemo(() => {
-    return (
-      cart?.reduce(
-        (total: number, item: any) => total + item.price * item.quantity,
-        0
-      ) || 0
-    );
-  }, [cart]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -57,8 +63,20 @@ const PaymentForm = () => {
       const savedReceipt = localStorage.getItem(RECEIPT_STORAGE_KEY);
 
       if (savedReceipt) {
-        setReceipt(JSON.parse(savedReceipt));
-        toast.success("Pagamento concluído. Guarde o seu recibo.");
+        try {
+          const parsedReceipt = JSON.parse(savedReceipt);
+          setReceipt({
+            ...parsedReceipt,
+            paymentStatus:
+              parsedReceipt.paymentStatus === "pending"
+                ? "Pagamento concluído"
+                : parsedReceipt.paymentStatus,
+          });
+
+          toast.success("Pagamento concluído. Guarde o seu recibo.");
+        } catch {
+          localStorage.removeItem(RECEIPT_STORAGE_KEY);
+        }
       }
     }
   }, []);
@@ -101,31 +119,58 @@ const PaymentForm = () => {
     });
   };
 
+  const createReceipt = ({
+    reference,
+    paymentRequestId,
+    paymentStatus,
+    method,
+  }: {
+    reference: string;
+    paymentRequestId?: string;
+    paymentStatus: string;
+    method: PaymentMethod;
+  }): ReceiptData => {
+    return {
+      reference,
+      paymentRequestId,
+      paymentStatus,
+      paymentMethod: method,
+      subtotal,
+      discount,
+      shipping,
+      total,
+      createdAt: new Date().toISOString(),
+      shippingForm,
+      deliveryMethod: "Entrega",
+      message: "Pagamento de encomenda Amy Sabores & Cakes",
+      items: cart || [],
+    };
+  };
+
   const handlePayment = async () => {
     try {
-      if (!totalAmount || totalAmount <= 0) {
+      if (!cart?.length || total <= 0) {
         toast.error("O carrinho está vazio.");
+        return;
+      }
+
+      if (!shippingForm) {
+        toast.error("Preencha os dados de entrega antes do pagamento.");
         return;
       }
 
       setIsLoading(true);
 
       if (selectedMethod === "cash") {
-        const cashReceipt: ReceiptData = {
+        const cashReceipt = createReceipt({
           reference: `CASH-${Date.now()}`,
           paymentStatus: "Pagamento na entrega",
-          paymentMethod: "cash",
-          amount: totalAmount,
-          createdAt: new Date().toISOString(),
-          customerName: "Cliente Amy Sabores",
-          customerContact: "",
-          deliveryMethod: "Entrega",
-          message: "Encomenda Amy Sabores & Cakes",
-          items: cart || [],
-        };
+          method: "cash",
+        });
 
         localStorage.setItem(RECEIPT_STORAGE_KEY, JSON.stringify(cashReceipt));
         setReceipt(cashReceipt);
+
         toast.success("Pedido registado. Tire screenshot do recibo.");
         return;
       }
@@ -136,17 +181,17 @@ const PaymentForm = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          donorName: "Cliente Amy Sabores",
-          donorContact: "",
+          donorName: shippingForm.name,
+          donorContact: shippingForm.phone,
           anonymousDonation: false,
-          amount: 1, //totalAmount
+          amount: 1, //total
           paymentMethod: selectedMethod,
-          message: "Pagamento de encomenda Amy Sabores & Cakes",
+          message: `Pagamento de encomenda Amy Sabores & Cakes - ${shippingForm.name}`,
           donationMode: "money",
           selectedGoods: cart || [],
           otherDonation: "",
           deliveryMethod: "delivery",
-          returnUrl: `${window.location.origin}/cart?payment=success`,
+          returnUrl: `${window.location.origin}/cart?step=3&payment=success`,
         }),
       });
 
@@ -156,19 +201,12 @@ const PaymentForm = () => {
         throw new Error(result.message || "Erro ao iniciar pagamento.");
       }
 
-      const receiptData: ReceiptData = {
+      const receiptData = createReceipt({
         reference: result?.data?.reference || `AMY-${Date.now()}`,
         paymentRequestId: result?.data?.paymentRequestId,
         paymentStatus: result?.data?.paymentStatus || "pending",
-        paymentMethod: selectedMethod,
-        amount: totalAmount,
-        createdAt: new Date().toISOString(),
-        customerName: "Cliente Amy Sabores",
-        customerContact: "",
-        deliveryMethod: "Entrega",
-        message: "Pagamento de encomenda Amy Sabores & Cakes",
-        items: cart || [],
-      };
+        method: selectedMethod,
+      });
 
       localStorage.setItem(RECEIPT_STORAGE_KEY, JSON.stringify(receiptData));
 
@@ -193,9 +231,12 @@ const PaymentForm = () => {
     const text = `Olá Amy Sabores & Cakes. Segue o recibo da minha encomenda.
 
 Referência: ${receipt.reference}
+Cliente: ${receipt.shippingForm?.name || "N/A"}
+Contacto: ${receipt.shippingForm?.phone || "N/A"}
+Morada: ${receipt.shippingForm?.address || "N/A"}, ${receipt.shippingForm?.city || "N/A"}
 Método: ${receipt.paymentMethod}
 Estado: ${receipt.paymentStatus}
-Total: MZN ${receipt.amount.toFixed(2)}
+Total: MZN ${receipt.total.toFixed(2)}
 
 Vou enviar o screenshot do recibo.`;
 
@@ -207,7 +248,7 @@ Vou enviar o screenshot do recibo.`;
 
   if (receipt) {
     return (
-      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-pink-100 sm:p-6">
+      <div className="rounded-2xl bg-white">
         <div
           id="digital-receipt"
           className="overflow-hidden rounded-2xl border border-pink-100 bg-white"
@@ -222,15 +263,17 @@ Vou enviar o screenshot do recibo.`;
           <div className="p-5 sm:p-6">
             <div className="mb-5 rounded-2xl bg-green-50 p-4 text-center">
               <Check className="mx-auto h-8 w-8 text-green-600" />
+
               <h3 className="mt-2 text-lg font-bold text-green-700">
                 Pagamento registado com sucesso
               </h3>
+
               <p className="mt-1 text-xs text-green-700">
                 Tire screenshot deste recibo e envie pelo WhatsApp.
               </p>
             </div>
 
-            <div className="grid gap-3 text-sm">
+            <ReceiptSection title="Dados do Pagamento">
               <ReceiptRow label="Referência" value={receipt.reference} />
               <ReceiptRow
                 label="ID do Pagamento"
@@ -239,47 +282,79 @@ Vou enviar o screenshot do recibo.`;
               <ReceiptRow label="Método" value={receipt.paymentMethod} />
               <ReceiptRow label="Estado" value={receipt.paymentStatus} />
               <ReceiptRow label="Data" value={formatDate(receipt.createdAt)} />
-              <ReceiptRow label="Cliente" value={receipt.customerName} />
-              <ReceiptRow label="Contacto" value={receipt.customerContact || "N/A"} />
-              <ReceiptRow label="Entrega" value={receipt.deliveryMethod} />
-            </div>
+            </ReceiptSection>
 
-            <div className="my-6 border-t border-dashed border-pink-200" />
+            <ReceiptSection title="Dados do Cliente">
+              <ReceiptRow
+                label="Cliente"
+                value={receipt.shippingForm?.name || "N/A"}
+              />
+              <ReceiptRow
+                label="Contacto"
+                value={receipt.shippingForm?.phone || "N/A"}
+              />
+              <ReceiptRow
+                label="Email"
+                value={receipt.shippingForm?.email || "N/A"}
+              />
+              <ReceiptRow
+                label="Cidade"
+                value={receipt.shippingForm?.city || "N/A"}
+              />
+              <ReceiptRow
+                label="Morada"
+                value={receipt.shippingForm?.address || "N/A"}
+              />
+            </ReceiptSection>
 
-            <h4 className="mb-3 font-bold text-gray-900">Produtos</h4>
+            <ReceiptSection title="Produtos">
+              <div className="space-y-3">
+                {receipt.items.map((item: any, index: number) => (
+                  <div
+                    key={`${item.id}-${index}`}
+                    className="rounded-xl bg-pink-50/60 p-3 text-sm"
+                  >
+                    <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          {item.name}
+                        </p>
 
-            <div className="space-y-3">
-              {receipt.items.map((item: any, index: number) => (
-                <div
-                  key={`${item.id}-${index}`}
-                  className="rounded-xl bg-pink-50/60 p-3 text-sm"
-                >
-                  <div className="flex justify-between gap-3">
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        {item.name}
-                      </p>
-                      <p className="mt-1 text-xs text-gray-500">
-                        Qtd: {item.quantity} | Tamanho:{" "}
-                        {item.selectedSize || "N/A"} | Sabor:{" "}
-                        {item.selectedFlavor || "N/A"}
+                        <p className="mt-1 text-xs text-gray-500">
+                          Qtd: {item.quantity} | Tamanho:{" "}
+                          {item.selectedSize || "N/A"} | Sabor:{" "}
+                          {item.selectedFlavor || "N/A"}
+                        </p>
+                      </div>
+
+                      <p className="font-bold text-pink-600">
+                        MZN {(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
-
-                    <p className="font-bold text-pink-600">
-                      MZN {(item.price * item.quantity).toFixed(2)}
-                    </p>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </ReceiptSection>
 
-            <div className="my-6 border-t border-dashed border-pink-200" />
+            <ReceiptSection title="Resumo">
+              <ReceiptRow
+                label="Subtotal"
+                value={`MZN ${receipt.subtotal.toFixed(2)}`}
+              />
+              <ReceiptRow
+                label="Desconto"
+                value={`- MZN ${receipt.discount.toFixed(2)}`}
+              />
+              <ReceiptRow
+                label="Envio"
+                value={`MZN ${receipt.shipping.toFixed(2)}`}
+              />
+            </ReceiptSection>
 
-            <div className="flex items-center justify-between rounded-2xl bg-pink-600 px-4 py-4 text-white">
+            <div className="mt-6 flex items-center justify-between rounded-2xl bg-pink-600 px-4 py-4 text-white">
               <span className="font-semibold">Total Pago</span>
               <span className="text-xl font-black">
-                MZN {receipt.amount.toFixed(2)}
+                MZN {receipt.total.toFixed(2)}
               </span>
             </div>
 
@@ -314,20 +389,21 @@ Vou enviar o screenshot do recibo.`;
   }
 
   return (
-    <div className="flex flex-col gap-6 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-pink-100 sm:p-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
           Método de Pagamento
         </h2>
+
         <p className="mt-1 text-sm text-gray-500">
           Total a pagar:{" "}
           <span className="font-bold text-pink-600">
-            MZN {totalAmount.toFixed(2)}
+            MZN {total.toFixed(2)}
           </span>
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {paymentMethods.map((method) => {
           const isActive = selectedMethod === method.id;
           const Icon = method.icon;
@@ -357,6 +433,7 @@ Vou enviar o screenshot do recibo.`;
                 <h3 className="text-sm font-bold text-gray-900">
                   {method.label}
                 </h3>
+
                 <p className="mt-1 text-xs leading-5 text-gray-500">
                   {method.description}
                 </p>
@@ -404,10 +481,25 @@ Vou enviar o screenshot do recibo.`;
   );
 };
 
+const ReceiptSection = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => {
+  return (
+    <div className="mt-6">
+      <h4 className="mb-3 font-bold text-gray-900">{title}</h4>
+      <div className="space-y-3">{children}</div>
+    </div>
+  );
+};
+
 const ReceiptRow = ({ label, value }: { label: string; value: string }) => {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-pink-50 pb-2">
-      <span className="text-gray-500">{label}</span>
+    <div className="flex items-start justify-between gap-4 border-b border-pink-50 pb-2 text-sm">
+      <span className="shrink-0 text-gray-500">{label}</span>
       <span className="text-right font-semibold text-gray-900">{value}</span>
     </div>
   );
