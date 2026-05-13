@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
 const SHIPPING_STORAGE_KEY = "amy_shipping_form";
 
@@ -40,18 +40,35 @@ const CartPage = () => {
         </p>
       </div>
 
-      <CartContent />
+      <Suspense fallback={<CartLoading />}>
+        <CartContent />
+      </Suspense>
     </div>
   );
 };
 
 export default CartPage;
 
+const CartLoading = () => {
+  return (
+    <div className="grid w-full gap-8 lg:grid-cols-[1.35fr_0.65fr]">
+      <div className="rounded-3xl border border-pink-100 bg-white p-8 shadow-sm">
+        <p className="text-sm text-gray-500">A carregar carrinho...</p>
+      </div>
+
+      <div className="rounded-3xl border border-pink-100 bg-white p-8 shadow-sm">
+        <p className="text-sm text-gray-500">A carregar resumo...</p>
+      </div>
+    </div>
+  );
+};
+
 const CartContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const activeStep = Number(searchParams.get("step") || "1");
+  const rawStep = Number(searchParams.get("step") || "1");
+  const activeStep = [1, 2, 3].includes(rawStep) ? rawStep : 1;
 
   const [shippingForm, setShippingForm] = useState<
     ShippingFormInputs | undefined
