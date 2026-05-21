@@ -97,4 +97,52 @@ export const products: ProductType[] = [
     images: { "#7D3C98": "/products/8.0.jpeg", "#1F618D": "/products/8.1.jpeg" },
     category: "doces-especiais",
   },
+  {
+    id: 9,
+    name: "Bolos Personalizados",
+    shortDescription: "Bolos Personalizados",
+    description:
+      "Encomende bolos conforme a sua preferencia e personalizados",
+    price: 500,
+    sizes: ["Caixa 6", "Caixa 12"],
+    colors: ["#7D3C98", "#1F618D"],
+    images: { "#7D3C98": "/products/9.0.jpeg", "#1F618D": "/products/9.0.jpeg" },
+    category: "bolos",
+  },
+  {
+    id: 10,
+    name: "Bolo de Chocolate",
+    shortDescription: "Bolo de Chocolate",
+    description:
+      "Bolo de Chocolate",
+    price: 950,
+    sizes: ["Caixa 6", "Caixa 12"],
+    colors: ["#7D3C98", "#1F618D"],
+    images: { "#7D3C98": "/products/10.0.jpeg", "#1F618D": "/products/10.1.jpeg" },
+    category: "bolos",
+  },
+  {
+    id: 11,
+    name: "Mini bolo de cenoura com chocolate",
+    shortDescription: "Mini bolo de cenoura com chocolate ",
+    description:
+      "Mini bolo de cenoura com chocolate ",
+    price: 150,
+    sizes: ["Caixa 6", "Caixa 12"],
+    colors: ["#7D3C98", "#1F618D"],
+    images: { "#7D3C98": "/products/11.0.jpeg", "#1F618D": "/products/11.0.jpeg" },
+    category: "bolos",
+  },
+  {
+    id: 12,
+    name: "Bolos de aniversário",
+    shortDescription: "Bolos de aniversário",
+    description:
+      "Bolos de aniversário",
+    price: 150,
+    sizes: ["Caixa 6", "Caixa 12"],
+    colors: ["#7D3C98", "#1F618D"],
+    images: { "#7D3C98": "/products/12.0.jpeg", "#1F618D": "/products/12.0.jpeg" },
+    category: "bolos",
+  },
 ];
