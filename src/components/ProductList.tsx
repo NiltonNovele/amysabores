@@ -5,6 +5,7 @@ import ProductCard from "./ProductCard";
 import Link from "next/link";
 import Filter from "./Filter";
 import { products as productsData } from "@/data/products";
+import { ProductCategory } from "@/types";
 
 import {
   Cake,
@@ -14,6 +15,7 @@ import {
   Sandwich,
   ShoppingBasket,
   Search,
+  ArrowRight,
 } from "lucide-react";
 
 const categories = [
@@ -26,6 +28,13 @@ const categories = [
   { name: "Doces Especiais", icon: Candy, slug: "doces-especiais" },
 ];
 
+type SortOption =
+  | "recentes"
+  | "populares"
+  | "asc"
+  | "desc"
+  | "recomendados";
+
 const ProductList = ({
   category,
   params,
@@ -37,41 +46,55 @@ const ProductList = ({
     category || "all"
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSort, setSelectedSort] = useState<SortOption>("recentes");
 
   const filteredProducts = useMemo(() => {
-    return productsData.filter((product) => {
+    const result = productsData.filter((product) => {
       const matchesCategory =
-        selectedCategory === "all" || product.category === selectedCategory;
+        selectedCategory === "all" ||
+        product.category === (selectedCategory as ProductCategory);
+
+      const search = searchTerm.trim().toLowerCase();
 
       const matchesSearch =
-        searchTerm.trim() === "" ||
-        product.name.toLowerCase().includes(searchTerm.toLowerCase());
+        search === "" ||
+        product.name.toLowerCase().includes(search) ||
+        product.shortDescription.toLowerCase().includes(search) ||
+        product.description.toLowerCase().includes(search);
 
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchTerm]);
+
+    return [...result].sort((a, b) => {
+      if (selectedSort === "asc") return a.price - b.price;
+      if (selectedSort === "desc") return b.price - a.price;
+      if (selectedSort === "recomendados") {
+        return Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured));
+      }
+      if (selectedSort === "populares") return b.id - a.id;
+      return b.id - a.id;
+    });
+  }, [selectedCategory, searchTerm, selectedSort]);
 
   return (
     <section className="w-full">
-      {/* Header */}
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-pink-500">
+          <span className="text-xs font-bold uppercase tracking-[0.25em] text-pink-500">
             Produtos
           </span>
 
-          <h2 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-black text-gray-900 sm:text-3xl">
             Escolha os seus favoritos
           </h2>
 
           <p className="mt-2 max-w-xl text-sm leading-6 text-gray-500">
-            Explore bolos, cupcakes, biscoitos, brigadeiros, salgados e doces
-            especiais preparados com carinho.
+            Explore bolos artesanais, doces especiais e sobremesas preparadas
+            com carinho pela Amy Sabores & Cakes.
           </p>
         </div>
 
-        {/* Search */}
-        <div className="relative w-full md:max-w-xs">
+        <div className="relative w-full md:max-w-sm">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-pink-400" />
 
           <input
@@ -79,13 +102,12 @@ const ProductList = ({
             placeholder="Pesquisar produto..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-xl border border-pink-100 bg-white px-4 py-3 pl-10 text-sm text-gray-700 outline-none transition-all duration-300 placeholder:text-pink-300 focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
+            className="w-full rounded-2xl border border-pink-100 bg-white px-4 py-3 pl-10 text-sm text-gray-700 outline-none transition-all duration-300 placeholder:text-pink-300 focus:border-pink-400 focus:ring-4 focus:ring-pink-100"
           />
         </div>
       </div>
 
-      {/* Categories */}
-      <div className="mb-6 overflow-x-auto rounded-2xl bg-pink-50 p-2 shadow-sm">
+      <div className="mb-6 overflow-x-auto rounded-3xl border border-pink-100 bg-pink-50/80 p-2 shadow-sm">
         <div className="flex min-w-max gap-2 lg:grid lg:min-w-0 lg:grid-cols-7">
           {categories.map((cat) => {
             const Icon = cat.icon;
@@ -96,9 +118,9 @@ const ProductList = ({
                 key={cat.slug}
                 type="button"
                 onClick={() => setSelectedCategory(cat.slug)}
-                className={`flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 ${
+                className={`flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
                   isActive
-                    ? "bg-white text-pink-600 shadow-md"
+                    ? "bg-white text-pink-600 shadow-md shadow-pink-100"
                     : "text-gray-500 hover:bg-white hover:text-pink-600"
                 }`}
               >
@@ -111,21 +133,27 @@ const ProductList = ({
       </div>
 
       {params === "products" && (
-        <div className="mb-6">
-          <Filter />
-        </div>
+        <Filter selectedSort={selectedSort} onSortChange={setSelectedSort} />
       )}
 
-      {/* Results Count */}
-      <div className="mb-5 flex items-center justify-between">
-        <p className="text-sm text-gray-500">
+      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm font-medium text-gray-500">
           {filteredProducts.length} produto
           {filteredProducts.length !== 1 ? "s" : ""} encontrado
           {filteredProducts.length !== 1 ? "s" : ""}
         </p>
+
+        {searchTerm && (
+          <button
+            type="button"
+            onClick={() => setSearchTerm("")}
+            className="w-fit text-sm font-semibold text-pink-600 hover:underline"
+          >
+            Limpar pesquisa
+          </button>
+        )}
       </div>
 
-      {/* Product Grid */}
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8 xl:grid-cols-3 2xl:grid-cols-4">
           {filteredProducts.map((product) => (
@@ -133,10 +161,10 @@ const ProductList = ({
           ))}
         </div>
       ) : (
-        <div className="flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-pink-200 bg-pink-50/60 px-6 py-12 text-center">
+        <div className="flex min-h-[280px] flex-col items-center justify-center rounded-3xl border border-dashed border-pink-200 bg-pink-50/60 px-6 py-12 text-center">
           <ShoppingBasket className="mb-4 h-10 w-10 text-pink-400" />
 
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-bold text-gray-900">
             Nenhum produto encontrado
           </h3>
 
@@ -150,7 +178,7 @@ const ProductList = ({
               setSelectedCategory("all");
               setSearchTerm("");
             }}
-            className="mt-5 rounded-xl bg-pink-500 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-pink-600"
+            className="mt-5 rounded-xl bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-pink-700"
           >
             Limpar filtros
           </button>
@@ -161,9 +189,10 @@ const ProductList = ({
         <div className="mt-8 flex justify-center md:justify-end">
           <Link
             href={category ? `/products/?category=${category}` : "/products"}
-            className="inline-flex items-center justify-center rounded-xl border border-pink-200 bg-white px-5 py-3 text-sm font-semibold text-pink-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-pink-400 hover:bg-pink-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-pink-600 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-pink-200 transition-all duration-300 hover:-translate-y-0.5 hover:bg-pink-700"
           >
             Ver todos produtos
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       )}

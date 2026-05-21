@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+export const productCategories = [
+  "bolos",
+  "cupcakes",
+  "biscoitos",
+  "brigadeiros",
+  "salgados",
+  "doces-especiais",
+] as const;
+
+export type ProductCategory = (typeof productCategories)[number];
+
 export type ProductType = {
   id: number;
   name: string;
@@ -9,13 +20,9 @@ export type ProductType = {
   sizes: string[];
   colors: string[];
   images: Record<string, string>;
-  category: 
-    | "bolos"
-    | "cupcakes"
-    | "biscoitos"
-    | "brigadeiros"
-    | "salgados"
-    | "doces-especiais"; // new category field
+  category: ProductCategory;
+  badge?: string;
+  isFeatured?: boolean;
 };
 
 export type ProductsType = ProductType[];
@@ -29,29 +36,28 @@ export type CartItemType = ProductType & {
 export type CartItemsType = CartItemType[];
 
 export const shippingFormSchema = z.object({
-  name: z.string().min(1, "Name is required!"),
-  email: z.string().email().min(1, "Email is required!"),
+  name: z.string().min(2, "Informe o seu nome completo."),
+  email: z.string().email("Informe um email válido."),
   phone: z
     .string()
-    .min(7, "Phone number must be between 7 and 10 digits!")
-    .max(10, "Phone number must be between 7 and 10 digits!")
-    .regex(/^\d+$/, "Phone number must contain only numbers!"),
-  address: z.string().min(1, "Address is required!"),
-  city: z.string().min(1, "City is required!"),
+    .min(7, "O número deve ter entre 7 e 10 dígitos.")
+    .max(10, "O número deve ter entre 7 e 10 dígitos.")
+    .regex(/^\d+$/, "O número deve conter apenas dígitos."),
+  address: z.string().min(3, "Informe a sua morada."),
+  city: z.string().min(2, "Informe a sua cidade."),
 });
 
 export type ShippingFormInputs = z.infer<typeof shippingFormSchema>;
 
 export const paymentFormSchema = z.object({
-  cardHolder: z.string().min(1, "Card holder is required!"),
+  cardHolder: z.string().min(2, "Informe o nome no cartão."),
   cardNumber: z
     .string()
-    .min(16, "Card Number is required!")
-    .max(16, "Card Number is required!"),
+    .regex(/^\d{16}$/, "O cartão deve ter 16 dígitos."),
   expirationDate: z
     .string()
-    .regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "Expiration date must be in MM/YY format!"),
-  cvv: z.string().min(3, "CVV is required!").max(3, "CVV is required!"),
+    .regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "Use o formato MM/AA."),
+  cvv: z.string().regex(/^\d{3}$/, "O CVV deve ter 3 dígitos."),
 });
 
 export type PaymentFormInputs = z.infer<typeof paymentFormSchema>;
