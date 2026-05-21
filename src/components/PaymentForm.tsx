@@ -184,7 +184,7 @@ const PaymentForm = ({
           donorName: shippingForm.name,
           donorContact: shippingForm.phone,
           anonymousDonation: false,
-          amount: 1, //total
+          amount: total, //total
           paymentMethod: selectedMethod,
           message: `Pagamento de encomenda Amy Sabores & Cakes - ${shippingForm.name}`,
           donationMode: "money",
