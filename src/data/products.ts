@@ -181,7 +181,7 @@ export const products: ProductType[] = [
     shortDescription: "Bolos especiais para celebrar a vida.",
     description:
       "Bolos de aniversário feitos sob encomenda, com decoração personalizada e sabores à escolha. Criados para tornar a celebração ainda mais especial.",
-    price: 150,
+    price: 1800,
     sizes: ["Pequeno", "Médio", "Grande", "Personalizado"],
     colors: ["#7D3C98", "#1F618D"],
     images: {
