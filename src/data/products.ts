@@ -35,22 +35,22 @@ export const products: ProductType[] = [
     badge: "Mais pedido",
     isFeatured: true,
   },
-  {
-    id: 3,
-    name: "Chiffon de Maracujá",
-    shortDescription: "Bolo leve com sabor tropical de maracujá.",
-    description:
-      "Chiffon fofo e delicado com toque refrescante de maracujá. Perfeito para quem procura um bolo leve, aromático e equilibrado.",
-    price: 700,
-    sizes: ["Pequeno", "Médio", "Grande"],
-    colors: ["#3E1F0D", "#5C2A0E"],
-    images: {
-      "#3E1F0D": "/products/3.jpeg",
-      "#5C2A0E": "/products/3.jpeg",
-    },
-    category: "bolos",
-    badge: "Especial",
-  },
+  // {
+  //   id: 3,
+  //   name: "Chiffon de Maracujá",
+  //   shortDescription: "Bolo leve com sabor tropical de maracujá.",
+  //   description:
+  //     "Chiffon fofo e delicado com toque refrescante de maracujá. Perfeito para quem procura um bolo leve, aromático e equilibrado.",
+  //   price: 700,
+  //   sizes: ["Pequeno", "Médio", "Grande"],
+  //   colors: ["#3E1F0D", "#5C2A0E"],
+  //   images: {
+  //     "#3E1F0D": "/products/3.jpeg",
+  //     "#5C2A0E": "/products/3.jpeg",
+  //   },
+  //   category: "bolos",
+  //   badge: "Especial",
+  // },
   {
     id: 4,
     name: "Gulabos",
